@@ -32,11 +32,11 @@ public class GameScreen implements Screen {
     Array<Cat> catstack;
     int gameOverHeight;
     int targetYOffset = 0;
-    int currentYOffset = -200;
+    int currentYOffset = 0;
     int bg1start;
     int bg2start;
     final float bgscrollspeed = 60f;
-    final float foregroundspeed = 100f;
+    final float foregroundspeed = 200f;
     long laststacktime;
     int stackSize;
     long gameStartTime;
@@ -52,7 +52,7 @@ public class GameScreen implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 480, 720);
 
-        catstack = new Array<>();
+        catstack = new Array<>(); //need to populate with all the cat images
         catImages = new Array<>();
 
         gameOverHeight = 150; //should be around the top of the boat
@@ -119,7 +119,6 @@ public class GameScreen implements Screen {
         bg1start -= bgscrollspeed * delta;
         if (bg1start < -720) bg1start = 0;
         bg2start = bg1start + SCREEN_HEIGHT;
-        System.out.println(bg1start);
     }
 
     private void incrementOffset(float delta) {
