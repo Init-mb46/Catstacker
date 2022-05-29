@@ -51,8 +51,8 @@ public class MainMenuScreen implements Screen {
         game.batch.draw(cloudsBg,0,0);
         game.batch.draw(catIconImage, catIcon.x, catIcon.y, catIcon.getWidth(), catIcon.getHeight());
         game.font.getData().setScale(2);
-        gl.setText(game.font, "Cat Stacker!");
-        game.font.draw(game.batch, "Cat Stacker!", SCREEN_WIDTH / 2 - gl.width / 2, (SCREEN_HEIGHT / 3) * 2);
+        gl.setText(game.font, "CAT STACKER!");
+        game.font.draw(game.batch, "CAT STACKER!", SCREEN_WIDTH / 2 - gl.width / 2, (SCREEN_HEIGHT / 3) * 2);
         game.font.getData().setScale(1);
         gl.setText(game.font, "Click on the cat for credits");
         game.font.draw(game.batch, "Click on the cat for credits", SCREEN_WIDTH / 2 - gl.width / 2, SCREEN_HEIGHT / 2);
@@ -68,8 +68,9 @@ public class MainMenuScreen implements Screen {
             dispose();
         }
         if (Gdx.input.isTouched()) {
-            Vector2 pos = new Vector2();
-            pos.set(Gdx.input.getX(), Gdx.input.getY());
+            Vector3 pos = new Vector3();
+            pos.set(Gdx.input.getX(), Gdx.input.getY(),0);
+            camera.unproject(pos);
             if (pos.x > catIcon.x && pos.x < catIcon.x + catIcon.getWidth() && pos.y > catIcon.y && pos.y < catIcon.y + catIcon.height) {
                 //credits and info screen
                 System.out.println("Credits rolling");
