@@ -20,7 +20,7 @@ public class MainMenuScreen implements Screen {
     Texture catIconImage;
     GlyphLayout gl;
     Rectangle catIcon;
-
+    Textbox[] menuText;
 
     public MainMenuScreen(final Catstacker game) {
         this.game = game;
@@ -34,6 +34,7 @@ public class MainMenuScreen implements Screen {
         catIcon = new Rectangle();
         catIcon.width = catIconImage.getWidth();
         catIcon.height = catIconImage.getHeight();
+        menuText = GameText.MAINMENUTEXT;
     }
     @Override
     public void show() {
@@ -50,22 +51,15 @@ public class MainMenuScreen implements Screen {
         game.batch.begin();
         game.batch.draw(cloudsBg,0,0);
         game.batch.draw(catIconImage, catIcon.x, catIcon.y, catIcon.getWidth(), catIcon.getHeight());
-        game.font.getData().setScale(2);
-        gl.setText(game.font, "CAT STACKER!");
-        game.font.draw(game.batch, "CAT STACKER!", SCREEN_WIDTH / 2 - gl.width / 2, (SCREEN_HEIGHT / 3) * 2);
-        game.font.getData().setScale(1);
-        gl.setText(game.font, "Click on the cat for credits");
-        game.font.draw(game.batch, "Click on the cat for credits", SCREEN_WIDTH / 2 - gl.width / 2, SCREEN_HEIGHT / 2);
-        game.font.getData().setScale(1);
-        gl.setText(game.font, "PRESS SPACE TO START");
-        game.font.draw(game.batch, "PRESS SPACE TO START", SCREEN_WIDTH / 2 - gl.width / 2, SCREEN_HEIGHT / 3 + gl.height);
+        for (Textbox t : menuText) {
+            t.draw(game.batch);
+        }
         game.batch.end();
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             //game starts
             System.out.println("game starting");
             game.setScreen(game.gs);
-            dispose();
         }
         if (Gdx.input.isTouched()) {
             Vector3 pos = new Vector3();
@@ -74,8 +68,7 @@ public class MainMenuScreen implements Screen {
             if (pos.x > catIcon.x && pos.x < catIcon.x + catIcon.getWidth() && pos.y > catIcon.y && pos.y < catIcon.y + catIcon.height) {
                 //credits and info screen
                 System.out.println("Credits rolling");
-                game.setScreen(new CreditsScreen(game));
-                dispose();
+                game.setScreen(game.cs);
             }
         }
     }

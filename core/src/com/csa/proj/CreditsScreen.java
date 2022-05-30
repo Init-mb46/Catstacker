@@ -1,26 +1,45 @@
 package com.csa.proj;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.loaders.I18NBundleLoader;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.TimeUtils;
+
+import java.sql.Time;
 
 public class CreditsScreen implements Screen {
     static final int SCREEN_WIDTH = 480;
     static final int SCREEN_HEIGHT = 720;
     final Catstacker game;
+
     OrthographicCamera camera;
     Texture cloudsBg;
-    GlyphLayout gl;
+    Textbox[] creditsText;
+
+    //EXTRAS
+    int catSpam = 30;
+    long lastTimeUsed = 0;
+    long cooldown = 2000;
+    boolean bonusActive = false;
+    Array<Cat> extrasStack;
 
     public CreditsScreen(final Catstacker game) {
         this.game = game;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 480,720);
 
+        cloudsBg = new Texture(Gdx.files.internal("clouds.png"));
+        extrasStack = new Array<>();
 
+        creditsText = GameText.CREDITSTEXT;
     }
 
     @Override
@@ -30,8 +49,30 @@ public class CreditsScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0,0,0,0);
         camera.update();
+        game.batch.setProjectionMatrix(camera.combined);
+        game.batch.begin();
+        game.batch.draw(cloudsBg, 0,0);
+        for (Textbox t : creditsText) {
+            t.draw(game.batch);
+        }
+        for (Cat t : extrasStack) {
+            t.render(delta);
+        }
+        game.batch.end();
+
+        if (bonusActive) {
+            if (TimeUtils.millis() - lastTimeUsed > cooldown) {
+                bonusActive = false;
+                extrasStack.clear();
+            }
+        } else {
+            if (Gdx.input.isKeyPressed(Input.Keys.C)) {
+                bonus();
+                lastTimeUsed = TimeUtils.millis();
+                bonusActive = true;
+            }
+        }
     }
 
     @Override
@@ -57,5 +98,21 @@ public class CreditsScreen implements Screen {
     @Override
     public void dispose() {
 
+    }
+
+    private void bonus() {
+        for (int i = 0 ; i < catSpam ; i ++ ) {
+            int catNum = MathUtils.random(1, GameScreen.CATIMAGES.size);
+            String texture = "cat" + catNum;
+            Cat c = new Cat(game, texture, null, null, SCREEN_WIDTH / 2 - Cat.DEFWIDTH / 2, SCREEN_HEIGHT / 2 - Cat.DEFHEIGHT / 2);
+            c.yvelocity = MathUtils.random() * 200;
+            c.xvelocity = (MathUtils.random() - 0.5f) * 600;
+            c.placed = true;
+            c.falling = true;
+            float sizeScale = MathUtils.random()  + 0.5f;
+            c.height *= sizeScale;
+            c.width *= sizeScale;
+            extrasStack.add(c);
+        }
     }
 }
