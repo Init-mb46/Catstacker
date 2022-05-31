@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -31,6 +32,8 @@ public class GameScreen implements Screen {
     GlyphLayout gl;
 
     static ObjectMap<String, Texture> CATIMAGES;
+    static ObjectMap<String, Sound> MEOWSOUNDS;
+    Sound meowCollapse;
     Array<Cat> catstack;
     Array<FallingObject> renderItems;
 
@@ -74,6 +77,7 @@ public class GameScreen implements Screen {
         catstack = new Array<>();
         renderItems = new Array<>();
         readyCatTextures();
+        readyMeowSounds();
 
         bg1start = 0;
         bg2start = bg1start + SCREEN_HEIGHT;
@@ -191,6 +195,7 @@ public class GameScreen implements Screen {
         catstack.clear();
         CATIMAGES.clear();
         renderItems.clear();
+        MEOWSOUNDS.clear();
     }
 
     private void updateHorizontalSpeeds(float speed) {
@@ -203,7 +208,7 @@ public class GameScreen implements Screen {
     }
 
     private void spawn(float delta) {
-        int spawnRate = (int) MathUtils.clamp(5000 / Math.abs(MathUtils.log(MathUtils.E, (TimeUtils.millis() - gameStartTime) / 1000 * 0.2f)), 2000, 2000);
+        int spawnRate = (int) MathUtils.clamp(5000 / Math.abs(MathUtils.log(MathUtils.E, (TimeUtils.millis() - gameStartTime) / 1000 * 0.2f)), 2000, 5000);
         if (TimeUtils.millis() - lastSpawnTime < spawnRate) return;
         lastSpawnTime = TimeUtils.millis();
         int catNum = MathUtils.random(1, CATIMAGES.size);
@@ -222,6 +227,14 @@ public class GameScreen implements Screen {
         CATIMAGES.put("cat1", new Texture(Gdx.files.internal("Cats/cat1.png")));
         CATIMAGES.put("cat2", new Texture(Gdx.files.internal("Cats/cat2.png")));
         CATIMAGES.put("cat3", new Texture(Gdx.files.internal("Cats/cat3.png")));
+    }
+
+    private void readyMeowSounds() {
+        MEOWSOUNDS = new ObjectMap<>();
+        MEOWSOUNDS.put("meow1", Gdx.audio.newSound(Gdx.files.internal("MeowSounds/meow1.wav")));
+        MEOWSOUNDS.put("meow2", Gdx.audio.newSound(Gdx.files.internal("MeowSounds/meow2.wav")));
+        MEOWSOUNDS.put("meow3", Gdx.audio.newSound(Gdx.files.internal("MeowSounds/meow3.wav")));
+        MEOWSOUNDS.put("meow4", Gdx.audio.newSound(Gdx.files.internal("MeowSounds/meow4.wav")));
     }
 
     /**

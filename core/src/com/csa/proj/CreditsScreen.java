@@ -1,5 +1,6 @@
 package com.csa.proj;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -39,7 +40,7 @@ public class CreditsScreen implements Screen {
 
         cloudsBg = new Texture(Gdx.files.internal("clouds.png"));
         extrasStack = new Array<>();
-        meow = Gdx.audio.newSound(Gdx.files.internal("meow.wav"));
+        GameScreen.MEOWSOUNDS.get("meow1");
     }
 
     @Override
