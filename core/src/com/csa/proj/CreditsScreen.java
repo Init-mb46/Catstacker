@@ -40,7 +40,7 @@ public class CreditsScreen implements Screen {
 
         cloudsBg = new Texture(Gdx.files.internal("clouds.png"));
         extrasStack = new Array<>();
-        GameScreen.MEOWSOUNDS.get("meow1");
+        meow = GameScreen.MEOWSOUNDS.get("meow1");
     }
 
     @Override
