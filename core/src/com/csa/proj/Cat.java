@@ -16,7 +16,7 @@ public class Cat extends Rectangle implements FallingObject{
     boolean falling = false;
 
     //physics
-    float yvelocity = 0f;
+    float yvelocity = 200f;
     float xvelocity = 0f;
     final int set_xpos;
     final static float DRIFTSPEED = 70;

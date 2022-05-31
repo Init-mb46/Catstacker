@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.audio.Sound;
 
 import java.sql.Time;
 
@@ -19,6 +20,7 @@ public class CreditsScreen implements Screen {
     static final int SCREEN_WIDTH = 480;
     static final int SCREEN_HEIGHT = 720;
     final Catstacker game;
+    Sound meow;
 
     OrthographicCamera camera;
     Texture cloudsBg;
@@ -37,6 +39,7 @@ public class CreditsScreen implements Screen {
 
         cloudsBg = new Texture(Gdx.files.internal("clouds.png"));
         extrasStack = new Array<>();
+        meow = Gdx.audio.newSound(Gdx.files.internal("meow.wav"));
     }
 
     @Override
@@ -110,5 +113,6 @@ public class CreditsScreen implements Screen {
             extrasStack.add(c);
             c.collapse(20);
         }
+        meow.play();
     }
 }

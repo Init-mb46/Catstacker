@@ -206,7 +206,6 @@ public class GameScreen implements Screen {
         int spawnRate = (int) MathUtils.clamp(5000 / Math.abs(MathUtils.log(MathUtils.E, (TimeUtils.millis() - gameStartTime) / 1000 * 0.2f)), 2000, 2000);
         if (TimeUtils.millis() - lastSpawnTime < spawnRate) return;
         lastSpawnTime = TimeUtils.millis();
-        System.out.println("spawning");
         int catNum = MathUtils.random(1, CATIMAGES.size);
         String texture = "cat" + catNum;
         int randXPos = MathUtils.random(STACKOVERLAP, SCREEN_WIDTH - Cat.DEFWIDTH - STACKOVERLAP);
