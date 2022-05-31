@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
-public class Cat extends Rectangle {
+public class Cat extends Rectangle implements FallingObject{
     final Catstacker game;
 
     String texture;
@@ -29,6 +29,7 @@ public class Cat extends Rectangle {
 
     int placedXoffset;
     int placedYoffset;
+    boolean collapsed = false;
 
     public Cat(final Catstacker game, String texture, Rectangle previous, Basket base, int x, int y) {
         this.texture = texture;
@@ -43,11 +44,22 @@ public class Cat extends Rectangle {
         xvelocity = DRIFTSPEED; //slowly drift side to side;
         falling = true;
     }
+
+    public void collapse(float COLLAPSE_POWER_MULTIPLIER) {
+        if (collapsed) return;
+        collapsed = true;
+        placed = true;
+        falling = true;
+        yvelocity = MathUtils.random() * 25 * COLLAPSE_POWER_MULTIPLIER;
+        xvelocity = (MathUtils.random() - 0.5f) * 100 * COLLAPSE_POWER_MULTIPLIER;
+    }
+
     public void move(float delta) {
         if (falling) yvelocity += ACCELERATION * delta;
         if (placed && falling) yvelocity += ACCELERATION * delta;
         //initiate falling into place
-        if (falling && !placed) {
+        if (falling && !placed && !collapsed) {
+            previousTarget = game.gs.previousCat != null ? game.gs.previousCat : game.gs.basket;
             if (previousTarget != null && y < previousTarget.y + previousTarget.height - STACKOVERLAP) {
                 if (x + width / 1.5 > previousTarget.x + STACKOVERLAP && x + width / 3 < previousTarget.x + previousTarget.width - STACKOVERLAP) {
                     //cat is in place to be stacked
@@ -60,7 +72,7 @@ public class Cat extends Rectangle {
                     placedXoffset = (int) (x - base.x);
                     y = previousTarget.y + previousTarget.height - STACKOVERLAP;
                     placedYoffset = (int) (y - base.y);
-                    game.gs.updateCOF(this);
+                    game.gs.updateCOF(this, true);
                 } else {
                     //cat is not in place. collapse stack
                     game.collapse();

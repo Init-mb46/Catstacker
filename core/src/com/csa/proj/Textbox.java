@@ -24,6 +24,10 @@ public class Textbox extends Rectangle {
         fontScale = fill ? (height - (text.length - 1) * padding) / text.length / fontSize : 1;
     }
 
+    public Textbox(String[] lines, BitmapFont font, int y, int height, boolean fill, boolean centered) {
+        this(lines, font, GameScreen.SCREEN_WIDTH / 2, y, 0, height, fill);
+    }
+
     /**
      * must be called between batch begin and batch end
      * @param batch

@@ -10,6 +10,9 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.TimeUtils;
+
+import java.sql.Time;
 
 public class MainMenuScreen implements Screen {
     static final int SCREEN_WIDTH = 480;
@@ -20,7 +23,9 @@ public class MainMenuScreen implements Screen {
     Texture catIconImage;
     GlyphLayout gl;
     Rectangle catIcon;
-    Textbox[] menuText;
+
+    boolean ready = false;
+    long st;
 
     public MainMenuScreen(final Catstacker game) {
         this.game = game;
@@ -34,10 +39,10 @@ public class MainMenuScreen implements Screen {
         catIcon = new Rectangle();
         catIcon.width = catIconImage.getWidth();
         catIcon.height = catIconImage.getHeight();
-        menuText = GameText.MAINMENUTEXT;
     }
     @Override
     public void show() {
+        st = TimeUtils.millis();
     }
 
     @Override
@@ -51,11 +56,14 @@ public class MainMenuScreen implements Screen {
         game.batch.begin();
         game.batch.draw(cloudsBg,0,0);
         game.batch.draw(catIconImage, catIcon.x, catIcon.y, catIcon.getWidth(), catIcon.getHeight());
-        for (Textbox t : menuText) {
+        for (Textbox t : GameText.MAINMENUTEXT) {
             t.draw(game.batch);
         }
         game.batch.end();
 
+        if (!ready && TimeUtils.millis() - st > 1000) ready = true;
+
+        if (!ready) return;
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             //game starts
             System.out.println("game starting");

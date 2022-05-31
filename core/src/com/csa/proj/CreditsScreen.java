@@ -22,7 +22,6 @@ public class CreditsScreen implements Screen {
 
     OrthographicCamera camera;
     Texture cloudsBg;
-    Textbox[] creditsText;
 
     //EXTRAS
     int catSpam = 30;
@@ -38,8 +37,6 @@ public class CreditsScreen implements Screen {
 
         cloudsBg = new Texture(Gdx.files.internal("clouds.png"));
         extrasStack = new Array<>();
-
-        creditsText = GameText.CREDITSTEXT;
     }
 
     @Override
@@ -53,7 +50,7 @@ public class CreditsScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         game.batch.draw(cloudsBg, 0,0);
-        for (Textbox t : creditsText) {
+        for (Textbox t : GameText.CREDITSTEXT) {
             t.draw(game.batch);
         }
         for (Cat t : extrasStack) {
@@ -105,14 +102,13 @@ public class CreditsScreen implements Screen {
             int catNum = MathUtils.random(1, GameScreen.CATIMAGES.size);
             String texture = "cat" + catNum;
             Cat c = new Cat(game, texture, null, null, SCREEN_WIDTH / 2 - Cat.DEFWIDTH / 2, SCREEN_HEIGHT / 2 - Cat.DEFHEIGHT / 2);
-            c.yvelocity = MathUtils.random() * 200;
-            c.xvelocity = (MathUtils.random() - 0.5f) * 600;
             c.placed = true;
             c.falling = true;
             float sizeScale = MathUtils.random()  + 0.5f;
             c.height *= sizeScale;
             c.width *= sizeScale;
             extrasStack.add(c);
+            c.collapse(20);
         }
     }
 }

@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.TimeUtils;
+import org.w3c.dom.Text;
 
 public class GameScreen implements Screen {
     static final int SCREEN_WIDTH = 480;
@@ -31,6 +32,7 @@ public class GameScreen implements Screen {
 
     static ObjectMap<String, Texture> CATIMAGES;
     Array<Cat> catstack;
+    Array<FallingObject> renderItems;
 
     final static float ACCELERATION = -40f;
     final static int STACKOVERLAP = 20; //px
@@ -40,16 +42,23 @@ public class GameScreen implements Screen {
     final float bgscrollspeed = 60f;
     final float foregroundscrollspeed = 200f;
     final float globalhorizontalspeed = 240f;
-    long lastSpawnTime;
-    long gameStartTime;
-    long gameEndTime;
-    boolean stopRenderFunctions = false;
+    static final float COLLAPSE_POWER_MULTIPLIER = 4;
 
     int targetYOffset = 0;
     int currentYOffset = 0;
     Rectangle camerasCOF;
     boolean shifting = false;
     static int RENDERCOUNT = 0;
+
+    long lastSpawnTime;
+    long gameStartTime;
+    long gameEndTime;
+    int score;
+    boolean newHighScore = false;
+
+    boolean stopRenderFunctions = false;
+    boolean renderGameOverText = false;
+    Cat previousCat;
 
     public GameScreen(final Catstacker game) {
         this.game = game;
@@ -63,6 +72,7 @@ public class GameScreen implements Screen {
         camera.setToOrtho(false, 480, 720);
 
         catstack = new Array<>();
+        renderItems = new Array<>();
         readyCatTextures();
 
         bg1start = 0;
@@ -95,40 +105,57 @@ public class GameScreen implements Screen {
         RENDERCOUNT++;
         basket.render(delta, basketImage, currentYOffset);
         //render all cats
-        for (Cat c : catstack) {
-            c.render(delta);
+        for (FallingObject Obj : renderItems) {
+            Obj.render(delta);
+        }
+        if (renderGameOverText) {
+            for (Textbox t : GameText.GAMEOVERTEXT)
+                t.draw(game.batch);
+
+            if (newHighScore) GameText.NEWHIGHSCORE.draw(game.batch);
+            GameText.scoreText(score, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3 * 2 - 50, 0, 25).draw(game.batch);
+
+        } else if (!stopRenderFunctions) {
+            //render game time and score only
+            int time = (int) ((TimeUtils.millis() - gameStartTime) / 1000);
+            GameText.timerText(time, 20, SCREEN_HEIGHT - 45, 50, 20).draw(game.batch);
+            GameText.scoreText(score, 20, SCREEN_HEIGHT - 10, 120, 20).draw(game.batch);
         }
         game.batch.end();
         if (stopRenderFunctions) {
-            if (TimeUtils.millis() - gameEndTime > 5000) {
-                catstack.clear();
-                game.reset();
-            }
+            if (!renderGameOverText && TimeUtils.millis() - gameEndTime > 2000) renderGameOverText = true;
+            if (renderGameOverText && Gdx.input.isKeyPressed(Input.Keys.SPACE)) game.reset();
         } else {
             if (game.COLLAPSE) {
                 //do collapse work
                 stopRenderFunctions = true;
                 updateHorizontalSpeeds(0);
                 collapseStack();
+                if (Catstacker.HIGHSCORE < score) {
+                    Catstacker.HIGHSCORE = score;
+                    newHighScore = true;
+                }
                 return;
             }
             spawn(delta);
 
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
                 //move everything to the right
-                System.out.println("right");
                 updateHorizontalSpeeds(globalhorizontalspeed);
             } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                System.out.println("left");
                 updateHorizontalSpeeds(-globalhorizontalspeed);
             } else {
                 updateHorizontalSpeeds(0);
             }
+            if (Gdx.input.isKeyPressed(Input.Keys.C)) collapseXcats(catstack.size);
 
             //for moving sprites down as stack grows
             if (camerasCOF.y > SCREEN_HEIGHT / 3 && !shifting) {
                 shifting = true;
                 targetYOffset -= camerasCOF.height - STACKOVERLAP;
+            } else if (camerasCOF.y < 0 && !shifting) {
+                shifting = true;
+                targetYOffset -= camerasCOF.y - ground.height + STACKOVERLAP;
             }
         }
         incrementOffset(delta);
@@ -163,27 +190,32 @@ public class GameScreen implements Screen {
         groundImage.dispose();
         catstack.clear();
         CATIMAGES.clear();
+        renderItems.clear();
     }
 
     private void updateHorizontalSpeeds(float speed) {
         basket.xvelocity = speed;
         for (Cat c : catstack) {
-            if (c.placed) c.xvelocity = speed;
+            c.xvelocity = speed;
         }
         camerasCOF.x = MathUtils.clamp(camerasCOF.x, 0, SCREEN_WIDTH - camerasCOF.width);
         basket.x = basket.camcofOffset + camerasCOF.x;
     }
 
     private void spawn(float delta) {
-        int spawnRate = (int) MathUtils.clamp(5000 / Math.abs(MathUtils.log(MathUtils.E, (TimeUtils.millis() - gameStartTime) / 1000 * 0.2f)), 2000, 5000);
+        int spawnRate = (int) MathUtils.clamp(5000 / Math.abs(MathUtils.log(MathUtils.E, (TimeUtils.millis() - gameStartTime) / 1000 * 0.2f)), 2000, 2000);
         if (TimeUtils.millis() - lastSpawnTime < spawnRate) return;
+        lastSpawnTime = TimeUtils.millis();
         System.out.println("spawning");
         int catNum = MathUtils.random(1, CATIMAGES.size);
         String texture = "cat" + catNum;
         int randXPos = MathUtils.random(STACKOVERLAP, SCREEN_WIDTH - Cat.DEFWIDTH - STACKOVERLAP);
-        Cat c = new Cat(game, texture, (catstack.size > 0 ? catstack.get(catstack.size - 1) : basket), basket, randXPos, SCREEN_HEIGHT + STACKOVERLAP);
-        catstack.add(c);
-        lastSpawnTime = TimeUtils.millis();
+        Cat c = new Cat(game, texture, (previousCat != null ? previousCat : basket), basket, randXPos, SCREEN_HEIGHT + STACKOVERLAP);
+        renderItems.add(c);
+    }
+
+    private void spawnGarbage(float delta) {
+
     }
 
     private void readyCatTextures() {
@@ -214,7 +246,7 @@ public class GameScreen implements Screen {
             if (currentYOffset < targetYOffset) currentYOffset = targetYOffset;
         } else if (currentYOffset < targetYOffset) {
             currentYOffset += foregroundscrollspeed * delta;
-            if (currentYOffset < targetYOffset) currentYOffset = targetYOffset;
+            if (currentYOffset > targetYOffset) currentYOffset = targetYOffset;
         } else {
             shifting = false;
         }
@@ -222,18 +254,36 @@ public class GameScreen implements Screen {
 
     private void collapseStack() {
         //make all cats fall over with random x velocities to the sides
-        for (Cat c : catstack) {
-            //precaution
-            c.placed = true;
-            c.falling = true;
-            c.yvelocity = MathUtils.random() * 100;
-            c.xvelocity = (MathUtils.random() - 0.5f) * 400;
+        for (FallingObject obj : renderItems) {
+            if (obj instanceof Cat) {
+                ((Cat) obj).collapse(COLLAPSE_POWER_MULTIPLIER);
+            }
         }
         gameEndTime = TimeUtils.millis();
     }
 
-    public void updateCOF(Rectangle rect) {
+    private void collapseXcats(int num) {
+        if (catstack.size < 1) return;
+        score -= num;
+        System.out.println(score);
+        for(int i = catstack.size - 1; i >= 0 && num > 0; i-- ) {
+                catstack.get(i).collapse(COLLAPSE_POWER_MULTIPLIER);
+                catstack.removeIndex(i);
+                num--;
+        }
+        previousCat = catstack.size > 0 ? catstack.get(catstack.size - 1) : null;
+        updateCOF(previousCat, false);
+    }
+
+    public void updateCOF(Rectangle rect, boolean check) {
+        if (rect == null) rect = basket;
         camerasCOF = rect;
         basket.camcofOffset = (int) (basket.x - camerasCOF.x);
+        if (!check) return;
+        if (rect instanceof Cat) {
+            catstack.add((Cat) rect);
+            score++;
+            previousCat = (Cat) rect;
+        }
     }
 }

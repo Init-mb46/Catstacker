@@ -15,6 +15,7 @@ public class Catstacker extends Game {
 	MainMenuScreen mms;
 	CreditsScreen cs;
 	static boolean COLLAPSE;
+	static int HIGHSCORE = 0;
 
 	@Override
 	public void create () {
