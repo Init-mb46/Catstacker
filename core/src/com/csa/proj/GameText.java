@@ -44,7 +44,38 @@ public class GameText {
     };
 
     static Textbox[] CREDITSTEXT = new Textbox[]{
-
+            new Textbox(
+                    new String[] {
+                            "CREDITS"
+                    },
+                    font1,
+                    SCREEN_HEIGHT / 6 * 5 + 50,
+                    40,
+                    true,
+                    true
+            ),
+            new Textbox(
+                    new String[] {
+                            "Cat Sprites by:         Victoria Yim",
+                            "Meowing Sounds by:   Calvin Wu",
+                    },
+                    font1,
+                    SCREEN_HEIGHT / 4 * 3,
+                    50,
+                    true,
+                    true
+            ),
+            new Textbox(
+                    new String[] {
+                            "Menu Music by:       VABsounds",
+                            "Game Music by:    FoolBoyMedia"
+                    },
+                    font1,
+                    SCREEN_HEIGHT / 4 * 3 - 80,
+                    50,
+                    true,
+                    true
+            )
     };
 
     static Textbox[] GAMEOVERTEXT = new Textbox[]{

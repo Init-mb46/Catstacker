@@ -174,7 +174,7 @@ public class GameScreen implements Screen {
             }
         }
         incrementOffset(delta);
-//        System.out.println(RENDERCOUNT);
+        System.out.println(RENDERCOUNT);
     }
 
     @Override
@@ -220,7 +220,7 @@ public class GameScreen implements Screen {
     }
 
     private void spawn(float delta) {
-        int spawnRate = (int) MathUtils.clamp(5000 / Math.abs(MathUtils.log(MathUtils.E, (TimeUtils.millis() - gameStartTime) / 1000 * 0.2f)), 2000, 5000);
+        int spawnRate = (int) MathUtils.clamp(5000 / Math.abs(MathUtils.log(MathUtils.E, (TimeUtils.millis() - gameStartTime) / 1000 * 0.2f)), 1000, 5000);
         if (TimeUtils.millis() - lastSpawnTime < spawnRate) return;
         lastSpawnTime = TimeUtils.millis();
         int catNum = MathUtils.random(1, CATIMAGES.size);
@@ -312,7 +312,7 @@ public class GameScreen implements Screen {
         if (!check) return;
         String songName = "meow" +MathUtils.random(1,4);
         long id = MEOWSOUNDS.get(songName).play();
-        MEOWSOUNDS.get(songName).setVolume(id, 0.2f);
+        MEOWSOUNDS.get(songName).setVolume(id, 0.05f);
         MEOWSOUNDS.get(songName).setPitch(id, 2f);
         if (rect instanceof Cat) {
             catstack.add((Cat) rect);
