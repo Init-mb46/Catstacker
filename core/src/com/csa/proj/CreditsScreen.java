@@ -21,7 +21,6 @@ public class CreditsScreen implements Screen {
     static final int SCREEN_WIDTH = 480;
     static final int SCREEN_HEIGHT = 720;
     final Catstacker game;
-    Sound meow;
 
     OrthographicCamera camera;
     Texture cloudsBg;
@@ -40,7 +39,6 @@ public class CreditsScreen implements Screen {
 
         cloudsBg = new Texture(Gdx.files.internal("clouds.png"));
         extrasStack = new Array<>();
-        meow = GameScreen.MEOWSOUNDS.get("meow1");
     }
 
     @Override
@@ -72,6 +70,8 @@ public class CreditsScreen implements Screen {
                 bonus();
                 lastTimeUsed = TimeUtils.millis();
                 bonusActive = true;
+            } else if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+                game.setScreen(game.mms);
             }
         }
     }
@@ -114,6 +114,9 @@ public class CreditsScreen implements Screen {
             extrasStack.add(c);
             c.collapse(20);
         }
-        meow.play();
+        String track = "meow"+MathUtils.random(1,4);
+        long id = GameScreen.MEOWSOUNDS.get(track).play();
+        GameScreen.MEOWSOUNDS.get(track).setPitch(id, 1.5f);
+        GameScreen.MEOWSOUNDS.get(track).setVolume(id, 0.5f);
     }
 }

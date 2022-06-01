@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -33,7 +34,7 @@ public class GameScreen implements Screen {
 
     static ObjectMap<String, Texture> CATIMAGES;
     static ObjectMap<String, Sound> MEOWSOUNDS;
-    Sound meowCollapse;
+    Music bgMusic; // BACKGROUND MUSIC TRACK BY FoolBoyMedia // https://freesound.org/people/FoolBoyMedia/sounds/257997/
     Array<Cat> catstack;
     Array<FallingObject> renderItems;
 
@@ -78,6 +79,9 @@ public class GameScreen implements Screen {
         renderItems = new Array<>();
         readyCatTextures();
         readyMeowSounds();
+        bgMusic = Gdx.audio.newMusic(Gdx.files.internal("bgMusic2.mp3"));
+        bgMusic.setLooping(true);
+        bgMusic.setVolume(0f);
 
         bg1start = 0;
         bg2start = bg1start + SCREEN_HEIGHT;
@@ -95,6 +99,7 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         gameStartTime = TimeUtils.millis();
+        bgMusic.play();
     }
 
     @Override
@@ -129,6 +134,9 @@ public class GameScreen implements Screen {
         if (stopRenderFunctions) {
             if (!renderGameOverText && TimeUtils.millis() - gameEndTime > 2000) renderGameOverText = true;
             if (renderGameOverText && Gdx.input.isKeyPressed(Input.Keys.SPACE)) game.reset();
+            if (bgMusic.getVolume() > 0) {
+                bgMusic.setVolume(MathUtils.clamp(bgMusic.getVolume() - 0.05f * delta, 0, 1));
+            }
         } else {
             if (game.COLLAPSE) {
                 //do collapse work
@@ -142,6 +150,9 @@ public class GameScreen implements Screen {
                 return;
             }
             spawn(delta);
+            if (bgMusic.getVolume() < 0.2f){
+                bgMusic.setVolume(MathUtils.clamp(bgMusic.getVolume() + 0.05f * delta, 0, 0.2f));
+            }
 
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
                 //move everything to the right
@@ -196,6 +207,7 @@ public class GameScreen implements Screen {
         CATIMAGES.clear();
         renderItems.clear();
         MEOWSOUNDS.clear();
+        bgMusic.dispose();
     }
 
     private void updateHorizontalSpeeds(float speed) {
@@ -235,6 +247,8 @@ public class GameScreen implements Screen {
         MEOWSOUNDS.put("meow2", Gdx.audio.newSound(Gdx.files.internal("MeowSounds/meow2.wav")));
         MEOWSOUNDS.put("meow3", Gdx.audio.newSound(Gdx.files.internal("MeowSounds/meow3.wav")));
         MEOWSOUNDS.put("meow4", Gdx.audio.newSound(Gdx.files.internal("MeowSounds/meow4.wav")));
+        MEOWSOUNDS.put("break", Gdx.audio.newSound(Gdx.files.internal("MeowSounds/break.wav")));
+        MEOWSOUNDS.put("collapse", Gdx.audio.newSound(Gdx.files.internal("MeowSounds/collapse.wav")));
     }
 
     /**
@@ -272,6 +286,8 @@ public class GameScreen implements Screen {
             }
         }
         gameEndTime = TimeUtils.millis();
+        long id = MEOWSOUNDS.get("collapse").play();
+        MEOWSOUNDS.get("collapse").setPitch(id, 2f);
     }
 
     private void collapseXcats(int num) {
@@ -285,6 +301,8 @@ public class GameScreen implements Screen {
         }
         previousCat = catstack.size > 0 ? catstack.get(catstack.size - 1) : null;
         updateCOF(previousCat, false);
+        long id = MEOWSOUNDS.get("break").play();
+        MEOWSOUNDS.get("break").setPitch(id, 2);
     }
 
     public void updateCOF(Rectangle rect, boolean check) {
@@ -292,6 +310,10 @@ public class GameScreen implements Screen {
         camerasCOF = rect;
         basket.camcofOffset = (int) (basket.x - camerasCOF.x);
         if (!check) return;
+        String songName = "meow" +MathUtils.random(1,4);
+        long id = MEOWSOUNDS.get(songName).play();
+        MEOWSOUNDS.get(songName).setVolume(id, 0.2f);
+        MEOWSOUNDS.get(songName).setPitch(id, 2f);
         if (rect instanceof Cat) {
             catstack.add((Cat) rect);
             score++;
