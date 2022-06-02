@@ -44,6 +44,7 @@ public class Garbage extends Rectangle implements FallingObject{
         target = game.gs.previousCat;
         move(delta);
         if (y > GameScreen.RENDERBOUNDS) {
+            GameScreen.RENDERCOUNT++;
             game.batch.draw(GameScreen.GARBAGEITEMS.get(texture), x + width / 2 - GARBAGESIZE / 2 , y + height / 2 - GARBAGESIZE / 2 , GARBAGESIZE,GARBAGESIZE);
         }
     }

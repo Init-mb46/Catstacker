@@ -75,6 +75,17 @@ public class GameText {
                     50,
                     true,
                     true
+            ),
+            new Textbox(
+                    new String[] {
+                            "All other sprite assets",
+                            "are copyright-free"
+                    },
+                    font1,
+                    SCREEN_HEIGHT / 2,
+                    60,
+                    true,
+                    true
             )
     };
 

@@ -180,7 +180,7 @@ public class GameScreen implements Screen {
             }
         }
         incrementOffset(delta);
-//        System.out.println(RENDERCOUNT);
+        System.out.println(RENDERCOUNT);
     }
 
     @Override
@@ -228,10 +228,10 @@ public class GameScreen implements Screen {
     private void spawn(float delta) {
         int spawnRate = (int) MathUtils.clamp(5000 / Math.abs(MathUtils.log(MathUtils.E, (TimeUtils.millis() - gameStartTime) / 1000 * 0.2f)), 1000, 5000);
         float chance = (float) Math.sqrt(MathUtils.clamp(MathUtils.log(MathUtils.E, (TimeUtils.millis() - gameStartTime) / 1000f * 0.05f), 0, 50)) * 0.075f;
-        System.out.println(chance);
-        if ((TimeUtils.millis() - gameStartTime) / 1000 >= 10 && TimeUtils.millis() - lastGarbageSpawnTime > spawnRate / 2) {
+//        System.out.println(chance);
+        if ((TimeUtils.millis() - gameStartTime) / 1000 >= 10 && TimeUtils.millis() - lastGarbageSpawnTime > spawnRate / 4) {
             //start garbage chance
-            lastGarbageSpawnTime = (long) (TimeUtils.millis() - spawnRate / 3);
+            lastGarbageSpawnTime = (long) (TimeUtils.millis() - spawnRate / 5);
             if (MathUtils.random() < chance) {
                 spawnGarbage(delta);
             }
