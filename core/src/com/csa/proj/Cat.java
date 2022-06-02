@@ -25,7 +25,6 @@ public class Cat extends Rectangle implements FallingObject{
     final static int DEFHEIGHT = 84; //px
 
     final static int STACKOVERLAP = GameScreen.STACKOVERLAP;
-    final static float ACCELERATION = GameScreen.ACCELERATION;
 
     int placedXoffset;
     int placedYoffset;

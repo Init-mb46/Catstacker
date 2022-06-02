@@ -17,6 +17,8 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.TimeUtils;
 import org.w3c.dom.Text;
 
+import java.sql.Time;
+
 public class GameScreen implements Screen {
     static final int SCREEN_WIDTH = 480;
     static final int SCREEN_HEIGHT = 720;
@@ -33,6 +35,7 @@ public class GameScreen implements Screen {
     GlyphLayout gl;
 
     static ObjectMap<String, Texture> CATIMAGES;
+    static ObjectMap<String, Texture> GARBAGEITEMS;
     static ObjectMap<String, Sound> MEOWSOUNDS;
     Music bgMusic; // BACKGROUND MUSIC TRACK BY FoolBoyMedia // https://freesound.org/people/FoolBoyMedia/sounds/257997/
     Array<Cat> catstack;
@@ -55,6 +58,7 @@ public class GameScreen implements Screen {
     static int RENDERCOUNT = 0;
 
     long lastSpawnTime;
+    long lastGarbageSpawnTime;
     long gameStartTime;
     long gameEndTime;
     int score;
@@ -79,6 +83,8 @@ public class GameScreen implements Screen {
         renderItems = new Array<>();
         readyCatTextures();
         readyMeowSounds();
+        readyGarbageTextures();
+
         bgMusic = Gdx.audio.newMusic(Gdx.files.internal("bgMusic2.mp3"));
         bgMusic.setLooping(true);
         bgMusic.setVolume(0f);
@@ -174,7 +180,7 @@ public class GameScreen implements Screen {
             }
         }
         incrementOffset(delta);
-        System.out.println(RENDERCOUNT);
+//        System.out.println(RENDERCOUNT);
     }
 
     @Override
@@ -221,7 +227,17 @@ public class GameScreen implements Screen {
 
     private void spawn(float delta) {
         int spawnRate = (int) MathUtils.clamp(5000 / Math.abs(MathUtils.log(MathUtils.E, (TimeUtils.millis() - gameStartTime) / 1000 * 0.2f)), 1000, 5000);
+        float chance = (float) Math.sqrt(MathUtils.clamp(MathUtils.log(MathUtils.E, (TimeUtils.millis() - gameStartTime) / 1000f * 0.05f), 0, 50)) * 0.075f;
+        System.out.println(chance);
+        if ((TimeUtils.millis() - gameStartTime) / 1000 >= 10 && TimeUtils.millis() - lastGarbageSpawnTime > spawnRate / 2) {
+            //start garbage chance
+            lastGarbageSpawnTime = (long) (TimeUtils.millis() - spawnRate / 3);
+            if (MathUtils.random() < chance) {
+                spawnGarbage(delta);
+            }
+        }
         if (TimeUtils.millis() - lastSpawnTime < spawnRate) return;
+
         lastSpawnTime = TimeUtils.millis();
         int catNum = MathUtils.random(1, CATIMAGES.size);
         String texture = "cat" + catNum;
@@ -231,7 +247,10 @@ public class GameScreen implements Screen {
     }
 
     private void spawnGarbage(float delta) {
-
+        String randomGarbage = "garbage" + MathUtils.random(1, GARBAGEITEMS.size);
+        renderItems.add(new Garbage(game, randomGarbage, MathUtils.random(STACKOVERLAP, SCREEN_WIDTH - Garbage.DEFWIDTH - STACKOVERLAP), SCREEN_HEIGHT + Garbage.GARBAGESIZE));
+        lastGarbageSpawnTime = TimeUtils.millis();
+        System.out.println("Garbage spawned");
     }
 
     private void readyCatTextures() {
@@ -239,6 +258,12 @@ public class GameScreen implements Screen {
         CATIMAGES.put("cat1", new Texture(Gdx.files.internal("Cats/cat1.png")));
         CATIMAGES.put("cat2", new Texture(Gdx.files.internal("Cats/cat2.png")));
         CATIMAGES.put("cat3", new Texture(Gdx.files.internal("Cats/cat3.png")));
+    }
+
+    public void readyGarbageTextures() {
+        GARBAGEITEMS = new ObjectMap<>();
+        GARBAGEITEMS.put("garbage1", new Texture(Gdx.files.internal("Garbage/trash.png")));
+        GARBAGEITEMS.put("garbage2", new Texture(Gdx.files.internal("Garbage/bone.png")));
     }
 
     private void readyMeowSounds() {
@@ -283,6 +308,8 @@ public class GameScreen implements Screen {
         for (FallingObject obj : renderItems) {
             if (obj instanceof Cat) {
                 ((Cat) obj).collapse(COLLAPSE_POWER_MULTIPLIER);
+            } else if (obj instanceof Garbage) {
+                ((Garbage) obj).collapse(COLLAPSE_POWER_MULTIPLIER);
             }
         }
         gameEndTime = TimeUtils.millis();
@@ -290,7 +317,7 @@ public class GameScreen implements Screen {
         MEOWSOUNDS.get("collapse").setPitch(id, 2f);
     }
 
-    private void collapseXcats(int num) {
+    public void collapseXcats(int num) {
         if (catstack.size < 1) return;
         score -= num;
         System.out.println(score);
