@@ -1,8 +1,5 @@
 package com.csa.proj;
 
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -13,7 +10,7 @@ public class Cat extends Rectangle implements FallingObject{
     Rectangle previousTarget;
     Basket base;
     boolean placed = false;
-    boolean falling = false;
+    boolean falling;
 
     //physics
     float yvelocity = 0f;

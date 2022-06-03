@@ -1,12 +1,20 @@
 package com.csa.proj;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
+
+/**
+ * SANDBOX COMMAND KEYBINDS -
+ * S x 2 (toggle sandbox)
+ *
+ * # 1 - 5 (Clear x cats from stack)
+ * Q (Clear all cats from stack)
+ * T (Add 1 cat to stack)
+ * Y (Add 1 cat to stack and clear all falling objects)
+ */
 
 public class Catstacker extends Game {
 	SpriteBatch batch;
@@ -16,6 +24,7 @@ public class Catstacker extends Game {
 	CreditsScreen cs;
 	static boolean COLLAPSE;
 	static int HIGHSCORE = 0;
+	static boolean sandbox = false;
 
 	@Override
 	public void create () {
