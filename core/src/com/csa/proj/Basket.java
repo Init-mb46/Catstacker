@@ -1,7 +1,6 @@
 package com.csa.proj;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
@@ -13,7 +12,6 @@ public class Basket extends Rectangle {
     final int set_y;
 
     Array<Cat> catstack;
-    final static int STACKOVERLAP = GameScreen.STACKOVERLAP;
     int camcofOffset = 0;
 
     public Basket(Catstacker game, Array<Cat> catstack, int x, int y) {

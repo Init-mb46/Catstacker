@@ -1,21 +1,13 @@
 package com.csa.proj;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.assets.loaders.I18NBundleLoader;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.badlogic.gdx.audio.Sound;
-
-import java.sql.Time;
 
 public class CreditsScreen implements Screen {
     static final int SCREEN_WIDTH = 480;
@@ -26,9 +18,10 @@ public class CreditsScreen implements Screen {
     Texture cloudsBg;
 
     //EXTRAS
-    int catSpam = 30;
+    int catSpam = 1000;
     long lastTimeUsed = 0;
-    long cooldown = 2000;
+    long cooldown = 5000;
+    float EXTRAS_COLLAPSE_POWER_MULTIPLIER = 100;
     boolean bonusActive = false;
     Array<Cat> extrasStack;
 
@@ -105,14 +98,14 @@ public class CreditsScreen implements Screen {
         for (int i = 0 ; i < catSpam ; i ++ ) {
             int catNum = MathUtils.random(1, GameScreen.CATIMAGES.size);
             String texture = "cat" + catNum;
-            Cat c = new Cat(game, texture, null, null, SCREEN_WIDTH / 2 - Cat.DEFWIDTH / 2, SCREEN_HEIGHT / 2 - Cat.DEFHEIGHT / 2);
+            Cat c = new Cat(game, texture, null, null, SCREEN_WIDTH / 2 - Cat.DEFWIDTH / 2, 0);
             c.placed = true;
             c.falling = true;
             float sizeScale = MathUtils.random()  + 0.5f;
             c.height *= sizeScale;
             c.width *= sizeScale;
             extrasStack.add(c);
-            c.collapse(20);
+            c.collapse(EXTRAS_COLLAPSE_POWER_MULTIPLIER);
         }
         String track = "meow"+MathUtils.random(1,4);
         long id = GameScreen.MEOWSOUNDS.get(track).play();

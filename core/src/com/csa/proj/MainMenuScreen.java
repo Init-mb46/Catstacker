@@ -1,6 +1,5 @@
 package com.csa.proj;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -10,15 +9,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
 
-import java.sql.Time;
-
 public class MainMenuScreen implements Screen {
-    static final int SCREEN_WIDTH = 480;
-    static final int SCREEN_HEIGHT = 720;
+    static final int SCREEN_WIDTH = GameScreen.SCREEN_WIDTH;
+    static final int SCREEN_HEIGHT = GameScreen.SCREEN_HEIGHT;
     final Catstacker game;
     OrthographicCamera camera;
     Texture cloudsBg;
@@ -30,6 +26,10 @@ public class MainMenuScreen implements Screen {
     boolean ready = false;
     boolean startGame = false;
     long st;
+    float iconScale = 0.75f;
+
+    long sandboxToggle;
+    long debp1;
 
     public MainMenuScreen(final Catstacker game) {
         this.game = game;
@@ -44,8 +44,10 @@ public class MainMenuScreen implements Screen {
         bgMusic.setLooping(true);
 
         catIcon = new Rectangle();
-        catIcon.width = catIconImage.getWidth();
-        catIcon.height = catIconImage.getHeight();
+        catIcon.width = catIconImage.getWidth() * iconScale;
+        catIcon.height = catIconImage.getHeight() * iconScale;
+        catIcon.x = 10;
+        catIcon.y = SCREEN_HEIGHT - catIconImage.getHeight() * iconScale - 10;
     }
     @Override
     public void show() {
@@ -57,15 +59,19 @@ public class MainMenuScreen implements Screen {
     public void render(float delta) {
         camera.update();
 
-        catIcon.x = 10;
-        catIcon.y = SCREEN_HEIGHT - catIconImage.getHeight() - 10;
-
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         game.batch.draw(cloudsBg,0,0);
         game.batch.draw(catIconImage, catIcon.x, catIcon.y, catIcon.getWidth(), catIcon.getHeight());
         for (Textbox t : GameText.MAINMENUTEXT) {
             t.draw(game.batch);
+        }
+        if (Catstacker.HIGHSCORE > 0) {
+            //highscore exists
+            GameText.displayHighScore(SCREEN_HEIGHT / 6 * 5 - 40, 30).draw(game.batch);
+        }
+        if (TimeUtils.millis() - sandboxToggle < 2000) {
+            GameText.SANDBOX().draw(game.batch);
         }
         game.batch.end();
 
@@ -84,7 +90,7 @@ public class MainMenuScreen implements Screen {
                 return;
             }
             bgMusic.stop();
-            System.out.println("game starting");
+//            System.out.println("game starting");
             game.setScreen(game.gs);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !startGame) {
@@ -97,8 +103,20 @@ public class MainMenuScreen implements Screen {
             camera.unproject(pos);
             if (pos.x > catIcon.x && pos.x < catIcon.x + catIcon.getWidth() && pos.y > catIcon.y && pos.y < catIcon.y + catIcon.height) {
                 //credits and info screen
-                System.out.println("Credits rolling");
+//                System.out.println("switching to credits");
                 game.setScreen(game.cs);
+            }
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+            if (TimeUtils.millis() - debp1 < 500) {
+                //debug toggle
+                sandboxToggle = TimeUtils.millis();
+                Catstacker.sandbox = !Catstacker.sandbox;
+//                System.out.println(Catstacker.sandbox);
+                debp1 = -999;
+            } else {
+                debp1 = TimeUtils.millis();
             }
         }
     }
